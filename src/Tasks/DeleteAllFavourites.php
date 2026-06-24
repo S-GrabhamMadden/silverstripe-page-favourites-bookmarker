@@ -30,11 +30,13 @@ class DeleteAllFavourites extends BuildTask
                 foreach ($items as $item) {
                     $item->delete();
                 }
+
                 echo 'Deleted ' . $count . ' items of class ' . $class . '<br />';
             } else {
                 echo 'No items of class ' . $class . '<br />';
             }
         }
+
         echo 'done';
     }
 }

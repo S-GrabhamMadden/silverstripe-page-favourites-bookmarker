@@ -2,7 +2,6 @@
 
 namespace Sunnysideup\PageFavouritesBookmarker\Model;
 
-use Page;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBHTMLText;
@@ -14,9 +13,11 @@ use Sunnysideup\PageFavouritesBookmarker\Control\BookmarkController;
 class BookmarkList extends DataObject
 {
     private static $table_name = 'BookmarkList';
+
     private static $db = [
         'Code' => 'Varchar(12)',
     ];
+
     private static $casting = [
         'Title' => 'Varchar',
     ];
@@ -64,7 +65,7 @@ class BookmarkList extends DataObject
 
     public function addManyByBookmarkUrlIds($array): void
     {
-        $ids = array_filter($array, 'is_numeric');
+        $ids = array_filter($array, is_numeric(...));
         foreach ($ids as $id) {
             $bookmarkUrl = BookmarkUrl::get()->byID(intval($id));
             if ($bookmarkUrl) {
@@ -83,6 +84,7 @@ class BookmarkList extends DataObject
         if ($this->MemberID) {
             return $this->Member()->getName();
         }
+
         return 'Anonymous List #' . $this->ID;
     }
 
@@ -99,12 +101,13 @@ class BookmarkList extends DataObject
         return $fields;
     }
 
-    public function onBeforeWrite()
+    protected function onBeforeWrite()
     {
         parent::onBeforeWrite();
         if (!$this->Code) {
             $this->Code = CodeMaker::make_alpha_num_code(12);
         }
+
         if (! $this->MemberID && Security::getCurrentUser()) {
             $this->MemberID = Security::getCurrentUser()->ID;
         }
@@ -128,7 +131,7 @@ class BookmarkList extends DataObject
     public function ShareLink()
     {
         $items = $this->Bookmarks()->columnUnique('BookmarkUrlID');
-        return BookmarkController::my_link('share' . '/' . implode(',', $items));
+        return BookmarkController::my_link('share/' . implode(',', $items));
     }
 
     public function BookmarksAsArray(): array
@@ -142,10 +145,11 @@ class BookmarkList extends DataObject
                     'url' => $url->URL,
                     'imagelink' => $url->ImageLink,
                     'description' => $url->Description,
-                    'ts' => strtotime($bookmark->Created),
+                    'ts' => strtotime((string) $bookmark->Created),
                 ];
             }
         }
+
         return $data;
     }
 }
